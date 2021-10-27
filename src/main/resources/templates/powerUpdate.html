@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>权限修改</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+
+
+<form action="/power/update" method="post">
+    <input type="hidden" th:value="${power.p.powerId}" name="powerId">
+    <label>权限名</label>
+    <input type="text" class="form-control" name="powerName" th:value="${power.p.powerName}">
+    <label>权限参数</label>
+    <input type="text" class="form-control" name="powerParam" th:value="${power.p.powerParam}">
+    <span style="color: red" th:text="${info}"></span>
+    <button type="submit" class="btn btn-success btn-sm">修改</button>
+
+</form>
+</body>
+</html>

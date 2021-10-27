@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign in</title>
+    <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="/js/vue.js"></script>
+
+    <link rel="stylesheet" type="text/css"href="/css/login.css"/>
+    <link rel="stylesheet" type="text/css"href="/css/iconfont.css"/>
+</head>
+<body>
+<div id="myapp">
+    <div id="login-box">
+        <h1>Login</h1>
+        <div class="input-box">
+            <i class="iconfont">&#xe609;</i>
+
+            <input type="text" placeholder="用户名" v-model="admin.sysName" />
+        </div>
+        <div class="input-box">
+            <i class="iconfont">&#xe605;</i>
+            <input type="password" placeholder="密码" v-model="admin.sysPwd" />
+        </div>
+        <button type="button" @click="login">Sign in</button>
+<!--        <a class="btn btn-warning btn-sm" th:href="@{/admin/test}">test</a>-->
+    </div>
+</div>
+
+
+</body>
+
+<script>
+    new Vue({
+        el:"#myapp",
+        data:{
+            admin:{
+                sysName:'',
+                sysPwd:'',
+            }
+        },
+        methods:{
+            login:function () {
+                var self = this;
+                $.ajax({
+                    url:"/adminReful/login",
+                    type:"post",
+                    contentType:"application/x-www-form-urlencoded",
+                    data:self.admin,
+                    dataType:"json",
+                    success:function (data) {
+                        console.log(data);
+                        alert(data.info);
+                        if(data.info=="登录成功"){
+                            localStorage.setItem("info",self.admin.sysName);
+                            window.location.href="/index";
+                        }
+                    }
+                })
+            }
+        }
+    })
+</script>
+
+</html>

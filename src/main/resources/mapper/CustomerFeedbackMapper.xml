@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqyj.dao.CustomerFeedbackMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hqyj.pojo.CustomerFeedback">
+        <id column="customer_feedback_id" property="customerFeedbackId" />
+        <result column="customer_name" property="customerName" />
+        <result column="manager_name" property="managerName" />
+        <result column="customer_statisfaction" property="customerStatisfaction" />
+        <result column="customer_feedback" property="customerFeedback" />
+        <result column="customer_id" property="customerId" />
+        <result column="manager_id" property="managerId" />
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap" type="com.hqyj.pojo.ServiceLog">
+        <id column="service_id" property="serviceId" />
+        <result column="service_type" property="serviceType" />
+        <result column="customer_name" property="customerName" />
+        <result column="estimate_cost" property="estimateCost" />
+        <result column="service_startdate" property="serviceStartdate" />
+        <result column="service_enddate" property="serviceEnddate" />
+        <result column="service_content" property="serviceContent" />
+        <result column="service_state" property="serviceState" />
+        <result column="manager_id" property="managerId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        customer_feedback_id, customer_name, manager_name, customer_statisfaction, customer_feedback, customer_id, manager_id
+    </sql>
+
+
+    <select id="selectCustomerAndManagerByAdminSysName" resultMap="BaseResultMap" parameterType="com.hqyj.pojo.Admin">
+        SELECT
+	        customer.customer_name,
+	        manager.manager_name,
+	        customer.customer_id,
+	        manager.manager_id
+        FROM
+	        admin
+	    INNER JOIN customer ON admin.customer_id = customer.customer_id
+	    INNER JOIN manager ON customer.manager_id = manager.manager_id
+        -- INNER JOIN service_log ON manager.manager_id = service_log.manager_id
+        WHERE
+	        admin.customer_id = #{customerId}
+    </select>
+
+    <select id="selectServiceLogByCustomerFeedback" parameterType="com.hqyj.pojo.CustomerFeedback" resultMap="ResultMap">
+        SELECT
+	        *
+        FROM
+	        service_log
+        WHERE
+	        service_log.manager_id = #{managerId}
+	    AND service_log.service_state = '已完成'
+	    AND service_log.customer_name = #{customerName}
+    </select>
+
+
+</mapper>

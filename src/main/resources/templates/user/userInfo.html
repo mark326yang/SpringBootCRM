@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/datatables.min.css" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="/js/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/vue.js"></script>
+</head>
+<body style="background-color:whitesmoke">
+<div id="admin">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>用户管理</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="javascript:void(0);">系统管理</a>
+            </li>
+<!--            <li>-->
+<!--                <a>用户管理</a>-->
+<!--            </li>-->
+            <li class="active">
+                <strong>用户管理</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="ibox-content m-b-sm border-bottom">
+        <div class="row">
+            <form role="form" class="form-horizontal">
+                <div class="form-group">
+
+                    <label class=" col-sm-2 control-label">编号</label>
+                    <div class=" col-sm-2">
+                        <input type="text" class="form-control" v-model="adminQuery.sysId" placeholder="请输入编号">
+                    </div>
+
+                    <label class=" col-sm-2 control-label">用户名</label>
+                    <div class=" col-sm-2">
+                        <input type="text" class="form-control" v-model="adminQuery.sysName" placeholder="请输入用户名">
+                    </div>
+
+                    <div>
+                        <button class="btn btn-primary btn-sm" type="button"  @click="loadData()"><span class="glyphicon glyphicon-zoom-in" ></span> 查询</button>
+                        <button class="btn btn-primary btn-sm" type="button" @click="add()"><span class="glyphicon glyphicon-plus"></span> 新增</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="ibox float-e-margins">
+
+                <div class="ibox-content">
+
+                    <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                        <thead>
+                        <tr>
+
+                            <th data-toggle="true">编号</th>
+                            <th data-hide="phone">用户名</th>
+                            <th data-hide="all">密码</th>
+                            <th data-hide="phone">盐值</th>
+                            <th class="text-right" data-sort-ignore="true">操作</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="x in list">
+                            <td>{{x.sysId}}</td>
+                            <td>{{x.sysName}}</td>
+                            <td>{{x.sysPwd}}</td>
+                            <td>{{x.salt}}</td>
+                            <td class="text-right">
+
+                                <button class="btn-primary btn btn-sm" @click="update(x)"><span class="glyphicon glyphicon-tag"></span> 编辑</button>
+                                <button class="btn-primary btn btn-sm"  @click="del(x)"><span class="glyphicon glyphicon-trash"></span> 删除</button>
+                                <button class="btn-primary btn btn-sm"  @click="assignRole(x)"><span class="glyphicon glyphicon-trash"></span> 分配角色</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        一共{{total}}条数据,一共{{totalPage}}页,当前第{{curPage}}页
+                        <button class="btn btn-success btn-sm" type="button" @click="prePages()">上一页</button>
+                        <button class="btn btn-success btn-sm" type="button" @click="nextPages()">下一页</button>
+                        <button class="btn btn-success btn-sm" type="button" @click="indexPage()">首页</button>
+                        <button class="btn btn-success btn-sm" type="button" @click="endPage()">尾页</button>
+                        跳转到<input type="number" id="num" style="width: 40px" min="1" max="10" v-model="selectPage" @keyup="valNum">页
+                        <button class="btn btn-success btn-sm" type="button" @click="changePage()">跳转</button>
+                        <select v-model="adminQuery.row" @change="selectRow" >
+                            <option value="3">每页3条</option>
+                            <option value="5">每页5条</option>
+                            <option value="10">每页10条</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 模态框新增 -->
+<div id="one" class="modal fade" style="top:200px">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <!--头部-->
+            <div class="modal-header">
+                <h4 align="center">{{title}}</h4>
+
+            </div>
+            <!--主题内容-->
+            <div class="modal-body">
+                <form role="form" class="form-horizontal">
+
+<!--                    <div class="form-group">-->
+<!--                        <label class=" col-sm-2 control-label">编号</label>-->
+<!--                        <div class=" col-sm-10">-->
+<!--                            <input type="text" class="form-control" v-model="admin.sysId"  placeholder="请输入编号">-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">用户名</label>
+                        <div class=" col-sm-10">
+                            <input type="text" class="form-control" v-model="adminAdd.sysName"  placeholder="请输入用户名">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">密码</label>
+                        <div class=" col-sm-10">
+                            <input type="text" class="form-control" v-model="adminAdd.sysPwd"  placeholder="请输入密码">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">用户类型</label>
+                        <div class=" col-sm-10">
+                            <!-- <input type="text" class="form-control" v-model="admin.sysPwd"  placeholder="请输入密码"> -->
+                            <select v-model="selectRole">
+                                <option value="经理">经理</option>
+                                <option value="客户">客户</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">编号</label>
+                        <div class=" col-sm-10">
+                            <input type="text" class="form-control" v-model="roleId"  placeholder="请输入编号">
+                        </div>
+                    </div>
+                    <span style="color: red;">{{info}}</span>
+                </form>
+            </div>
+
+            <!--底部-->
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" type="button" @click="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+                <button class="btn btn-primary btn-sm" type="button" @click="saveAdminAdd"><span class="glyphicon glyphicon-save"   ></span>保存</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <!-- 模态框修改   -->
+    <div id="two" class="modal fade" style="top:200px">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!--头部-->
+                <div class="modal-header">
+                    <h4 align="center">{{title}}</h4>
+
+                </div>
+                <!--主题内容-->
+                <div class="modal-body">
+                    <form role="form" class="form-horizontal">
+
+                        <!--                    <div class="form-group">-->
+                        <!--                        <label class=" col-sm-2 control-label">编号</label>-->
+                        <!--                        <div class=" col-sm-10">-->
+                        <!--                            <input type="text" class="form-control" v-model="admin.sysId"  placeholder="请输入编号">-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">用户名</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="admin.sysName"  placeholder="请输入用户名">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">密码</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="admin.sysPwd"  placeholder="请输入密码">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!--底部-->
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-sm" type="button" @click="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+                    <button class="btn btn-primary btn-sm" type="button" @click="saveAdmin"><span class="glyphicon glyphicon-save"   ></span>保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script>
+
+    new Vue({
+        el:"#admin",
+        data:{
+            list:[],
+            total:0,//总条数
+            totalPage:0,//总页数
+            selectPage:1,//选择页数
+            adminQuery:{ //查询对象
+                page:1,
+                row:3,
+                sysId:null,
+                sysName:''
+            },
+            prePage:0,//上一页
+            nextPage:0,//下一页
+            curPage:0,//当前页
+            admin:{
+                sysId:0,
+                sysName:"",
+                sysPwd:"",
+                managerId:"",
+                customerId:""
+            },
+            adminAdd:{
+                sysId:0,
+                sysName:"",
+                sysPwd:"",
+                managerId:"",
+                customerId:""
+            },
+            title:"用户修改",
+            selectRole:"",
+            roleId:"",
+            info:""
+
+
+
+        },
+        methods:{
+            loadData:function () {
+                var self = this;
+                $.ajax({
+                    url:"/admin/adminList",//请求地址
+                    type:"get",
+                    data:self.adminQuery,
+                    dataType:"json",//返回的数据类型
+                    success:function (data) {
+                        console.log(data);
+                        self.list = data.list;
+                        self.total = data.total;
+                        self.totalPage = data.totalPage;
+                        self.prePage = data.prePage;
+                        self.nextPage = data.nextPage;
+                        self.curPage = data.curPage;
+
+
+                    }
+
+                })
+            },
+            prePages:function () {//上一页
+                this.adminQuery.page = this.prePage;
+                //刷新
+                this.loadData();
+
+            },
+            nextPages:function () {
+                this.adminQuery.page = this.nextPage;
+                //刷新
+                this.loadData();
+
+            },
+            indexPage:function () {//首页
+                this.adminQuery.page = 1
+                //刷新
+                this.loadData();
+
+            },
+            endPage:function () {//尾页
+                this.adminQuery.page = this.totalPage;
+                //刷新
+                this.loadData();
+
+            },
+            changePage:function () {//跳转
+                if(this.selectPage>this.totalPage){
+                    this.adminQuery.page = this.totalPage;
+                }else{
+                    this.adminQuery.page = this.selectPage;
+                }
+                //刷新
+                this.loadData();
+
+            },
+            selectRow:function () {//选择条数
+                this.adminQuery.page=1
+                //刷新
+                this.loadData();
+
+            },
+            valNum:function () {
+                //定义正则表达式对象
+                var dd =/^[\u4e00-\u9fa5]{0,}$/
+                //如果输入的汉字，就显示1
+               if(dd.test(this.selectPage)) {
+                   this.selectPage=1
+               }else{
+                   console.log("=="+this.selectPage)
+                   //如果输入的值大于总页数，就回到最大值
+                   if(this.selectPage>this.totalPage){
+                       this.selectPage = this.totalPage;
+                   }
+               }
+
+
+            },
+            update:function(x) {//打开修改模态框
+                $("#two").modal("show");
+                //数据回显
+                this.admin = x;
+                delete this.admin.roleList;
+                this.title="用户修改";
+
+            },
+            add :function () {//打开新增模态框
+                $("#one").modal("show")
+                this.title="用户新增";
+                //清空
+                // this.admin.sysId=null;
+                // this.admin.sysName="";
+                // this.admin.sysPwd=""
+                // this.adminAdd = x;
+
+            },
+            del :function (x) {
+
+                //数据回显
+                this.admin = x;
+                var is = confirm("你确定要删除吗？")
+                if(is){
+                    window.location.href="/admin/del?id="+this.admin.sysId;
+                }
+                this.title="用户删除";
+            },
+            assignRole:function(x){
+                //数据回显
+                this.admin = x;
+                window.location.href="/admin/assignRolePage?id="+this.admin.sysId;
+            },
+            saveAdminAdd: function() {
+                console.log("新增");
+                if(this.adminAdd.sysName==""){
+                    this.info = "登录名不能为空";
+                    return ;
+                }
+
+                if(this.adminAdd.sysPwd==""){
+                    this.info = "登录密码不能为空";
+                    return ;
+                }
+
+                if(this.selectRole==""){
+                    this.info = "用户类型不能为空";
+                    return ;
+                }
+
+                var url="";
+                if(this.title=="用户新增"){
+                    url="/admin/add";
+                }else{
+                    ;
+                }
+                var self = this;
+
+                console.log(this.selectRole);
+                if (this.selectRole == "经理"){
+                    console.log(this.roleId);
+                    this.admin.customerId = "";
+                    this.admin.managerId = this.roleId;
+
+                } else if(this.selectRole == "客户"){
+                    console.log(this.roleId);
+                    this.admin.managerId = ""
+                    this.admin.customerId = this.roleId;
+
+                }
+
+                // console.log(url);
+                // console.log(self.admin);
+                $.ajax({
+                    url:url,
+                    type:"post",
+                    contentType:"application/x-www-form-urlencoded",
+                    data:self.adminAdd,
+                    dataType:"json",
+                    success:function (data) {
+                        console.log(data);
+                        alert(data.info);
+                        if(data.info=="保存成功"){
+                            //关闭模态框
+                            $("#one").modal("hide");
+                            //刷新
+                            self.loadData();
+                        }
+                    }
+
+
+                })
+            },
+            saveAdmin: function () {//保存
+                var url="";
+                if(this.title=="用户修改"){
+                    url="/admin/update";
+                }else{
+                    ;
+                }
+                var self = this;
+
+                // console.log(url);
+                // console.log(self.admin);
+                $.ajax({
+                    url:url,
+                    type:"post",
+                    contentType:"application/x-www-form-urlencoded",
+                    data:self.admin,
+                    dataType:"json",
+                    success:function (data) {
+                        console.log(data);
+                        alert(data.info);
+                        if(data.info=="保存成功"){
+                            //关闭模态框
+                            $("#two").modal("hide");
+                            //刷新
+                            self.loadData();
+                        }
+                    }
+
+
+                })
+
+            },
+            closeWin:function () {//关闭模态框
+                $("#one").modal("hide");
+                $("#two").modal("hide");
+                this.info = "";
+                this.loadData();
+            }
+
+
+        },
+        mounted(){
+            //运行loadData函数
+            this.loadData();
+        }
+    })
+
+
+
+</script>
+</html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqyj.dao.EChartsMapper">
+    <resultMap id="baseMap" type="com.hqyj.pojo.RoleType">
+
+    </resultMap>
+
+    <!-- 查询三种角色的人员占比   -->
+    <select id="selectRoleType" resultType="com.hqyj.pojo.RoleType">
+        SELECT CASE admin_role.role_id
+	    WHEN 1 THEN '管理员'
+	    when 2 Then '经理'
+	    ELSE '客户'
+        END name
+        ,count(role_id) as number
+        FROM admin_role
+        GROUP BY admin_role.role_id
+    </select>
+</mapper>

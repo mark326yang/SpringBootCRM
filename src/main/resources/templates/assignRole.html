@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<form action="/admin/assignRole" method="get">
+    <input type="hidden"  name="sysId" th:value="${admin.a.sysId}">
+    <label>分配角色参数:</label>
+    <!-- 下拉框 -->
+    <select name="roleParam">
+        <option value="admin">管理员：admin</option>
+        <option value="manager">客户经理：manager</option>
+        <option value="customer">客户：customer</option>
+    </select>
+
+    <span style="color: red" th:text="${info}"></span>
+    <button type="submit" class="btn btn-success btn-sm">确认</button>
+
+</form>
+</body>
+</html>

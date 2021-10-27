@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqyj.dao.ServiceLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hqyj.pojo.ServiceLog">
+        <id column="service_id" property="serviceId" />
+        <result column="service_type" property="serviceType" />
+        <result column="customer_name" property="customerName" />
+        <result column="estimate_cost" property="estimateCost" />
+        <result column="service_startdate" property="serviceStartdate" />
+        <result column="service_enddate" property="serviceEnddate" />
+        <result column="service_content" property="serviceContent" />
+        <result column="service_state" property="serviceState" />
+        <result column="manager_id" property="managerId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        service_id, service_type, customer_name, estimate_cost, service_startdate, service_enddate, service_content, service_state, manager_id
+    </sql>
+    
+    <select id="selectCustomerNameServiceLogByManager" resultMap="BaseResultMap" parameterType="com.hqyj.pojo.Admin">
+        SELECT
+ customer.customer_name,
+ manager.manager_id
+FROM
+admin
+INNER JOIN manager ON admin.manager_id = manager.manager_id
+INNER JOIN customer ON manager.manager_id = customer.manager_id
+where
+  admin.manager_id = #{managerId}
+    </select>
+
+
+</mapper>

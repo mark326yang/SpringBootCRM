@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>客户信息管理系统</title>
+		<meta name="keywords" content="表格" />
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/font-awesome.css" rel="stylesheet">
+		<link href="/css/datatables.min.css" rel="stylesheet">
+		<link href="/css/animate.css" rel="stylesheet">
+		<link href="/css/style.css" rel="stylesheet">
+
+
+	</head>
+	<body>
+		<div id="wrapper">
+			<nav class="navbar-default navbar-static-side">
+				<div class="sidebar-collapse">
+					<ul class="nav metismenu" id="side-menu">
+						<li style="margin-left: 80px;margin-top: 30px;">
+							<div class="dropdown profile-element"> <span>
+									<img alt="image" class="img-circle"
+										src="http://www.inspinia.net/img/profile_small.jpg" />
+								</span>
+
+								<span class="clear"> <span class="block m-t-xs">
+										<strong id="userName" style="color: white;" ></strong>
+									</span>
+								</span>
+
+							</div>
+
+						</li>
+
+						<!-- 系统管理 -->
+						<li >
+							<a href="index.html"><i class="glyphicon glyphicon-asterisk"></i>
+								<span class="nav-label">系统管理</span>
+							</a>
+
+							<ul class="nav nav-second-level">
+								<li shiro:hasAnyPermissions="manager:list"><a href="javascript:openUrl('/user/userInfo')"><i class="glyphicon glyphicon-user"></i>用户管理</a></li>
+								<li shiro:hasPermission="admin:list"><a href="javascript:openUrl('/role/roleList')"><i class="glyphicon glyphicon-user"></i>角色管理</a></li>
+								<li shiro:hasPermission="admin:list"><a href="javascript:openUrl('/power/powerList')"><i class="glyphicon glyphicon-user"></i>权限管理</a></li>
+							</ul>
+
+						</li>
+
+
+						<!-- 客户经理管理-->
+						<li shiro:hasPermission="admin:list">
+							<a href="index.html"><i class="glyphicon glyphicon-user"></i>
+								<span class="nav-label">客户经理管理</span>
+							</a>
+
+							<ul class="nav nav-second-level">
+
+								<li><a href="javascript:openUrl('/manager/managerInfo')"><i class="glyphicon glyphicon-user"></i>经理管理</a></li>
+
+							</ul>
+
+						</li>
+
+						<!-- 客户信息管理 -->
+						<li shiro:hasAnyPermissions="manager:list">
+							<a href="index.html"><i class="glyphicon glyphicon-asterisk"></i>
+								<span class="nav-label">客户信息管理</span>
+							</a>
+
+							<ul class="nav nav-second-level">
+
+								<li><a href="javascript:openUrl('/customer/customerInfo')"><i class="glyphicon glyphicon-user"></i>客户信息管理</a></li>
+								<li><a href="javascript:openUrl('/customer/customCare')"><i class="glyphicon glyphicon-user"></i>客服关怀管理</a></li>
+								<!--								<li><a href="dashboard_2.html"><i class="glyphicon glyphicon-minus-sign"></i>角色管理</a></li>-->
+								<!--								<li><a href="dashboard_2.html"><i class="glyphicon glyphicon-inbox"></i>权限管理</a></li>-->
+							</ul>
+
+						</li>
+
+						<!-- 客户服务 -->
+						<li>
+							<a href="index.html"><i class="glyphicon glyphicon-user"></i>
+								<span class="nav-label">客户服务</span>
+							</a>
+
+							<ul class="nav nav-second-level">
+
+								<li><a shiro:hasAnyPermissions="manager:list" href="javascript:openUrl('/manager/servicelog')"><i class="glyphicon glyphicon-user"></i>客户服务记录</a></li>
+
+							</ul>
+
+							<ul class="nav nav-second-level">
+
+								<li><a shiro:hasAnyPermissions="customer:list" href="javascript:openUrl('/customer/feedbackInfo')"><i class="glyphicon glyphicon-user"></i>客户反馈</a></li>
+
+							</ul>
+
+						</li>
+						<!-- echarts图展示 -->
+						<li shiro:hasPermission="admin:list">
+							<a href="#"><i class="glyphicon glyphicon-user"></i>
+								<span class="nav-label">占比情况</span>
+							</a>
+
+							<ul class="nav nav-second-level">
+
+								<li><a  href="javascript:openUrl('/echarts/person')"><i class="glyphicon glyphicon-user"></i>人员占比</a></li>
+
+							</ul>
+
+						</li>
+
+					</ul>
+
+				</div>
+
+			</nav>
+
+
+			<div id="page-wrapper" class="gray-bg">
+
+				<div class="row border-bottom">
+
+					<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+
+						<div class="navbar-header">
+
+							<div style="position: fixed;top:10px;left:30%;">
+<!--								<button class="btn btn-primary btn-sm">回到首页</button>-->
+<!--								<button class="btn btn-primary btn-sm">修改密码</button>-->
+								<div style="position: absolute;left:100px;">
+									<button class="btn btn-primary btn-sm">
+										<span class="glyphicon glyphicon-home"></span>
+										回到首页
+									</button>
+								</div>
+
+								<div style="position: absolute;left:200px;">
+									<button class="btn btn-primary btn-sm" onclick="add()">
+										<span class="glyphicon glyphicon-user"></span>修改密码
+									</button>
+								</div>
+								<div style="position: absolute;left:300px;">
+									<a class="btn btn-warning btn-sm" th:href="@{/admin/exit}">
+										<span class="glyphicon glyphicon-asterisk"></span>
+										退出系统
+									</a>
+								</div>
+								<div style="position: absolute;left:680px;width: 400px;">
+									<h4>欢迎使用xxx公司的客户信息管理系统</h4>
+								</div>
+
+							</div>
+
+						</div>
+					</nav>
+
+				</div>
+
+
+				<iframe style="height: 900px;border:  solid 1px white;" scrolling="auto" rameborder="0" src="/user/userInfo"
+					name="right" width="100%" height="100%">
+				</iframe>
+			</div>
+		</div>
+		</div>
+
+			<!--模态框开始-->
+		<div id="one" class="modal fade" style="top:200px">
+			<div class="modal-dialog">
+
+				<div class="modal-content">
+					<!--头部
+					<div class="modal-header">
+						<h4 align="center">用户修改</h4>
+
+					</div>-->
+					<!--主题内容-->
+					<div class="modal-body">
+						<form role="form" class="form-horizontal">
+							<div class="form-group">
+								<label class=" col-sm-2 control-label">姓名</label>
+								<div class=" col-sm-10">
+									<input type="text" class="form-control" id="name" placeholder="请输入姓名">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2  control-label">学历</label>
+								<div class=" col-sm-10">
+									<select class="form-control" id="s">
+										<option>本科</option>
+										<option>专科</option>
+									</select>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<!--底部-->
+					<div class="modal-footer">
+						<button class="btn btn-primary btn-sm" type="button" onclick="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+						<button class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-save"></span>保存</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Mainly scripts -->
+
+		<script src="/js/jquery-3.1.1.min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+		<script src="/js/jquery.metisMenu.js"></script>
+		<script src="/js/jquery.slimscroll.min.js"></script>
+		<script src="/js/datatables.min.js"></script>
+		<script src="/js/inspinia.js"></script>
+		<script src="/js/pace.min.js"></script>
+	</body>
+
+	<script>
+		//打开页面
+		function openUrl(url) {
+			$("iframe").attr("src", url);
+		}
+		//显示模态框
+		function add() {
+			$("#one").modal("hide");
+		}
+		//关闭模态框
+		function closeWin() {
+			$("#one").modal("hide");
+		}
+		/*
+		* 显示登录的用户名
+		* */
+		var sysName = localStorage.getItem("info");
+		document.getElementById("userName").innerText = sysName+"";
+
+
+	</script>
+</html>

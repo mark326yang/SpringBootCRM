@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/datatables.min.css" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="/js/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/vue.js"></script>
+</head>
+<body style="background-color:whitesmoke">
+<div id="customer">
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>客户管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="index.html">客户信息管理</a>
+                </li>
+                <!--            <li>-->
+                <!--                <a>用户管理</a>-->
+                <!--            </li>-->
+                <li class="active">
+                    <strong>经理</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+        <div class="ibox-content m-b-sm border-bottom">
+            <div class="row">
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+
+                        <label class=" col-sm-2 control-label">编号</label>
+                        <div class=" col-sm-2">
+                            <input type="text" class="form-control" v-model="customerQuery.customerId" placeholder="请输入编号">
+                        </div>
+
+                        <label class=" col-sm-2 control-label">客户名</label>
+                        <div class=" col-sm-2">
+                            <input type="text" class="form-control" v-model="customerQuery.customerName" placeholder="请输入客户名">
+                        </div>
+
+                        <div>
+                            <button class="btn btn-primary btn-sm" type="button"  @click="loadData()"><span class="glyphicon glyphicon-zoom-in" ></span> 查询</button>
+                            <button class="btn btn-primary btn-sm" type="button" @click="add()"><span class="glyphicon glyphicon-plus"></span> 新增</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="ibox float-e-margins">
+
+                    <div class="ibox-content">
+
+                        <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                            <thead>
+                            <tr>
+
+                                <th data-toggle="true">编号</th>
+                                <th data-hide="phone">客户姓名</th>
+                                <th data-hide="all">联系电话</th>
+                                <th data-hide="phone">邮箱地址</th>
+                                <th data-hide="phone">学历</th>
+
+                                <th class="text-right" data-sort-ignore="true">操作</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="x in list">
+                                <td>{{x.customerId}}</td>
+                                <td>{{x.customerName}}</td>
+                                <td>{{x.customerPhone}}</td>
+                                <td>{{x.customerEmail}}</td>
+                                <td>{{x.customerEducation}}</td>
+                                <td class="text-right">
+                                    <button class="btn-success btn btn-sm" @click="detail(x)"><span class="glyphicon glyphicon-tag"></span>详细信息</button>
+                                    <button class="btn-primary btn btn-sm" @click="update(x)"><span class="glyphicon glyphicon-tag"></span> 编辑</button>
+                                    <button class="btn-danger btn btn-sm" type="button"  @click="del(x)"><span class="glyphicon glyphicon-trash"></span> 删除</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="display: inline-block;">
+                            一共{{total}}条数据,一共{{totalPage}}页,当前第{{curPage}}页
+                            <button class="btn btn-success btn-sm" type="button" @click="prePages()">上一页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="nextPages()">下一页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="indexPage()">首页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="endPage()">尾页</button>
+                            跳转到<input type="number" id="num" style="width: 40px" min="1" max="10" v-model="selectPage" @keyup="valNum">页
+                            <button class="btn btn-success btn-sm" type="button" @click="changePage()">跳转</button>
+                            <select v-model="customerQuery.row" @change="selectRow" >
+                                <option value="3">每页3条</option>
+                                <option value="5">每页5条</option>
+                                <option value="10">每页10条</option>
+                            </select>
+                        </div>
+                        <div style="display: inline-block;">
+                            <form action="/excelCustomer">
+                                <button class="btn btn-success" type="submit">Excel导出</button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 客户模态框新增 -->
+    <div id="one" class="modal fade" style="top:150px">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!--头部-->
+                <div class="modal-header">
+                    <h4 align="center">{{title}}</h4>
+
+                </div>
+                <div class="modal-body">
+                    <form role="form" class="form-horizontal">
+
+                        <!--                    <div class="form-group">-->
+                        <!--                        <label class=" col-sm-2 control-label">编号</label>-->
+                        <!--                        <div class=" col-sm-10">-->
+                        <!--                            <input type="text" class="form-control" v-model="customer.customerId"  placeholder="请输入编号">-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">客户姓名</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.customerName"  placeholder="请输入客户名" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">性别</label>
+
+                            <div class=" col-sm-10">
+                                <select v-model="customerAdd.customerSex">
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                                <!--                            <input type="text" class="form-control" v-model="customer.customerSex"  placeholder="请输入性别" required="required">-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">出生日期</label>
+                            <div class=" col-sm-10">
+                                <input type="date" class="form-control" v-model="customerAdd.customerBirthday"  placeholder="请输入出生日期" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系电话</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.customerPhone"  placeholder="请输入联系电话" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">邮箱地址</label>
+                            <div class=" col-sm-10">
+                                <input type="email" class="form-control" v-model="customerAdd.customerEmail"  placeholder="请输入邮箱地址">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">学历</label>
+                            <div class=" col-sm-10">
+                                <select v-model="customerAdd.customerEducation">
+                                    <option value="研究生">研究生</option>
+                                    <option value="本科">本科</option>
+                                    <option value="专科">专科</option>
+                                    <option value="高中">高中</option>
+                                </select>
+                                <!--                            <input type="text" class="form-control" v-model="customer.customerEducation"  placeholder="请输入学历">-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">身份证号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.customerIdnumber"  placeholder="请输入身份证号" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">单位</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.customerUnit"  placeholder="请输入单位名" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">经理编号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.managerId"  placeholder="请输经理编号" readonly="readonly">
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系人</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.customerLinkman"  placeholder="请输入联系人" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">备注</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customerAdd.comments"  placeholder="备注">
+                            </div>
+                        </div>
+                        <span style="color:red">{{info}}</span>
+                    </form>
+                </div>
+
+                <!--底部-->
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-sm" type="button" @click="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+                    <button class="btn btn-primary btn-sm" type="button"  @click="saveCustomerAdd"><span class="glyphicon glyphicon-save"   ></span>保存新增</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 客户模态框修改-->
+    <div id="two" class="modal fade" style="top:150px">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!--头部-->
+                <div class="modal-header">
+                    <h4 align="center">{{title}}</h4>
+
+                </div>
+                <!--主题内容-->
+                <div class="modal-body">
+                    <form role="form" class="form-horizontal">
+
+                        <!--                    <div class="form-group">-->
+                        <!--                        <label class=" col-sm-2 control-label">编号</label>-->
+                        <!--                        <div class=" col-sm-10">-->
+                        <!--                            <input type="text" class="form-control" v-model="customer.customerId"  placeholder="请输入编号">-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">客户姓名</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerName"  placeholder="请输入客户名" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">性别</label>
+
+                            <div class=" col-sm-10">
+                                <select v-model="customer.customerSex">
+                                    <option value="男">男</option>
+                                    <option value="女">女</option>
+                                </select>
+                                <!--                            <input type="text" class="form-control" v-model="customer.customerSex"  placeholder="请输入性别" required="required">-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">出生日期</label>
+                            <div class=" col-sm-10">
+                                <input type="date" class="form-control" v-model="customer.customerBirthday"  placeholder="请输入出生日期" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系电话</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerPhone"  placeholder="请输入联系电话" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">邮箱地址</label>
+                            <div class=" col-sm-10">
+                                <input type="email" class="form-control" v-model="customer.customerEmail"  placeholder="请输入邮箱地址">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">学历</label>
+                            <div class=" col-sm-10">
+                                <select v-model="customer.customerEducation">
+                                    <option value="研究生">研究生</option>
+                                    <option value="本科">本科</option>
+                                    <option value="专科">专科</option>
+                                    <option value="高中">高中</option>
+                                </select>
+                                <!--                            <input type="text" class="form-control" v-model="customer.customerEducation"  placeholder="请输入学历">-->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">身份证号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerIdnumber"  placeholder="请输入身份证号" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">单位</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerUnit"  placeholder="请输入单位名" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">经理编号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.managerId"  placeholder="请输经理编号" required="required">
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系人</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerLinkman"  placeholder="请输入联系人" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">备注</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.comments"  placeholder="备注">
+                            </div>
+                        </div>
+                        <span style="color:red">{{info}}</span>
+                    </form>
+                </div>
+
+                <!--底部-->
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-sm" type="button" @click="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+                    <button class="btn btn-primary btn-sm" type="button"  @click="saveCustomer"><span class="glyphicon glyphicon-save"   ></span>保存修改</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框详细信息 -->
+
+
+    <div id="customerDetail" class="modal fade" style="top:150px">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!--头部-->
+                <div class="modal-header">
+                    <h4 align="center">{{title}}</h4>
+
+                </div>
+                <!--主题内容-->
+                <div class="modal-body">
+                    <form role="form" class="form-horizontal">
+
+                        <!--                    <div class="form-group">-->
+                        <!--                        <label class=" col-sm-2 control-label">编号</label>-->
+                        <!--                        <div class=" col-sm-10">-->
+                        <!--                            <input type="text" class="form-control" v-model="customer.customerId"  placeholder="请输入编号">-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">客户姓名</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerName"  readonly="readonly">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">性别</label>
+
+                            <div class=" col-sm-10">
+                                <!--                                <select v-model="customer.customerSex" >-->
+                                <!--                                    <option value="男">男</option>-->
+                                <!--                                    <option value="女">女</option>-->
+                                <!--                                </select>-->
+                                <input type="text" class="form-control" v-model="customer.customerSex" readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">出生日期</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerBirthday"  readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系电话</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerPhone" readonly="readonly"  >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">邮箱地址</label>
+                            <div class=" col-sm-10">
+                                <input type="email" class="form-control" v-model="customer.customerEmail" readonly="readonly"  >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">学历</label>
+                            <div class=" col-sm-10">
+                                <!--                                <select v-model="customer.customerEducation">-->
+                                <!--                                    <option value="研究生">研究生</option>-->
+                                <!--                                    <option value="本科">本科</option>-->
+                                <!--                                    <option value="专科">专科</option>-->
+                                <!--                                    <option value="高中">高中</option>-->
+                                <!--                                </select>-->
+                                <input type="text" class="form-control" v-model="customer.customerEducation"  readonly="readonly">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">身份证号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerIdnumber" readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">工作单位</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerUnit" readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">联系人</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.customerLinkman" readonly="readonly" >
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">备注</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.comments" readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class=" col-sm-2 control-label">经理编号</label>
+                            <div class=" col-sm-10">
+                                <input type="text" class="form-control" v-model="customer.managerId" readonly="readonly" >
+                            </div>
+                        </div>
+
+                        <span style="color:red">{{info}}</span>
+                    </form>
+                </div>
+
+                <!--底部-->
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-sm" type="button" @click="closeWin()"><span class="glyphicon glyphicon-remove"></span>关闭</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+</div>
+</body>
+
+<script>
+
+    new Vue({
+        el:"#customer",
+        data:{
+            list:[],
+            total:0,//总条数
+            totalPage:0,//总页数
+            selectPage:1,//选择页数
+            customerQuery:{ //查询对象
+                page:1,
+                row:5,
+                customerId:null,
+                customerName:""
+            },
+            prePage:0,//上一页
+            nextPage:0,//下一页
+            curPage:0,//当前页
+            customer:{
+                customerId:0,
+                customerName:"",
+                customerSex:"",
+                customerBirthday:"",
+                customerPhone:"",
+                customerEmail:"",
+                customerEducation:"",
+                customerIdnumber:"",
+                customerUnit:"",
+                customerLinkman:"",
+                comments:"",
+                managerId:""
+            },
+            title:"客户列表",
+            info:"",
+            customerAdd:{
+                customerId:0,
+                customerName:"",
+                customerSex:"",
+                customerBirthday:"",
+                customerPhone:"",
+                customerEmail:"",
+                customerEducation:"",
+                customerIdnumber:"",
+                customerUnit:"",
+                customerLinkman:"",
+                comments:"",
+                managerId:""
+
+            },
+            customerList:[],
+
+
+
+
+        },
+        methods:{
+            loadData:function () {
+                var self = this;
+                $.ajax({
+                    url:"/customer/list",//请求地址
+                    type:"get",
+                    data:self.customerQuery,
+                    dataType:"json",//返回的数据类型
+                    success:function (data) {
+                        // console.log(data);
+                        self.list = data.list;
+                        self.total = data.total;
+                        self.totalPage = data.totalPage;
+                        self.prePage = data.prePage;
+                        self.nextPage = data.nextPage;
+                        self.curPage = data.curPage;
+
+
+                    }
+
+                })
+            },
+            prePages:function () {//上一页
+                this.customerQuery.page = this.prePage;
+                //刷新
+                this.loadData();
+
+            },
+            nextPages:function () {
+                this.customerQuery.page = this.nextPage;
+                //刷新
+                this.loadData();
+
+            },
+            indexPage:function () {//首页
+                this.customerQuery.page = 1;
+                //刷新
+                this.loadData();
+
+            },
+            endPage:function () {//尾页
+                this.customerQuery.page = this.totalPage;
+                //刷新
+                this.loadData();
+
+            },
+            changePage:function () {//跳转
+                if(this.selectPage>this.totalPage){
+                    this.customerQuery.page = this.totalPage;
+                }else{
+                    this.customerQuery.page = this.selectPage;
+                }
+                //刷新
+                this.loadData();
+
+            },
+            selectRow:function () {//选择条数
+                this.customerQuery.page=1;
+                //刷新
+                this.loadData();
+
+            },
+            valNum:function () {
+                //定义正则表达式对象
+                var dd =/^[\u4e00-\u9fa5]{0,}$/;
+                //如果输入的汉字，就显示1
+                if(dd.test(this.selectPage)) {
+                    this.selectPage=1;
+                }else{
+                    console.log("=="+this.selectPage);
+                    //如果输入的值大于总页数，就回到最大值
+                    if(this.selectPage>this.totalPage){
+                        this.selectPage = this.totalPage;
+                    }
+                }
+
+
+            },
+            update:function(x) {//打开修改模态框
+                $("#two").modal("show");
+                //数据回显
+                this.customer = x;
+                console.log(this.customer);
+
+                this.title="修改";
+
+            },
+            add :function () {//打开新增模态框
+                $("#one").modal("show");
+                this.title="新增";
+                var self = this;
+                $.ajax({
+                    url:"/customer/addPage",
+                    type:"get",
+                    data:self.customerAdd,
+                    dataType:"json",
+                    success:function (data) {
+                        if(data.info=="成功"){
+                            // self.servicelogAdd=data.servicelogAdd;
+                            //console.log(data.customerAdd.managerId);
+                            self.customerAdd= data.customerAdd;
+                            //self.customerAdd1.managerId = data.customerAdd1[0].managerId;
+                        }
+                    }
+                })
+
+
+            },
+            del: function(x){
+                var is = window.confirm("确定要删除吗?");
+                // console.log(is);
+                if (is){
+                    var self = this;
+                    // window.location.href="/customer/del/"+x.customerId;
+                    $.ajax({
+                        url:"/customer/del",
+                        type:"post",
+                        contentType:"application/x-www-form-urlencoded",
+                        dataType:"json",
+                        data:{
+                            "customerId":x.customerId
+                        },
+                        success:function (data) {
+                            // console.log(data.info);
+                            if(data.info=="保存成功"){
+                                //刷新页面
+                                self.loadData();
+                            }
+                        }
+
+                    });
+                }
+            },
+            saveCustomerAdd:function () {//保存
+                // 匹配姓名
+                if(this.customerAdd.customerName==""){
+                    this.info="姓名不能为空";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                if(this.customerAdd.customerSex==""){
+                    this.info = "性别不能为空";
+                    return;
+                } else {
+                    this.info="";
+                }
+
+
+                //
+                // if(this.customer.customerBirthday==""){
+                //     this.info="出生日期不能为空";
+                //     return;
+                // }
+
+                // 匹配正确的联系电话
+                // var mobilePhone = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$/;
+                // var fixedPhone = /\d{3}-\d{8}|\d{4}-\d{7}/;
+                // console.log("aaa="+this.customer.customerPhone);
+                // if (!(mobilePhone.test(this.customer.customerPhone)) || !(fixedPhone.test(this.customer.customerPhone))){
+                //
+                //     this.info = "联系电话格式不正确";
+                //     return;
+                // }
+
+                // 配置是否是正确的邮箱
+                var emailMatch = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+                console.log("this.customerEmail="+this.customerAdd.customerEmail);
+                if (!(emailMatch.test(this.customerAdd.customerEmail))){
+                    this.info="邮箱格式不正确";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配学历
+                if(this.customerAdd.customerEducation==""){
+                    this.info = "学历不能为空";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配正确的身份证号
+                var idNumber = /^\d{15}|\d{18}$/;
+                if (!(idNumber.test(this.customerAdd.customerIdnumber))){
+                    this.info = "身份证格式不正确";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配url 是修改还是新增
+                var url = "";
+                if (this.title == "修改") {
+                    url = "/customer/update";
+                } else if (this.title == "新增") {
+                    url = "/customer/add";
+                }
+                var self = this;
+                console.log(self);
+
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/x-www-form-urlencoded",
+                    data: self.customerAdd,
+                    dataType: "json",
+                    success: function (data) {
+                        // console.log(data);
+                        alert(data.info);
+                        if (data.info == "保存成功") {
+                            //关闭模态框
+                            $("#one").modal("hide");
+                            // 重置提示信息
+                            self.info = "";
+                            //刷新
+                            self.loadData();
+                        }
+                    }
+                });
+
+            },
+            saveCustomer: function () {
+                // 匹配姓名
+                if(this.customer.customerName==""){
+                    this.info="姓名不能为空";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                if(this.customer.customerSex==""){
+                    this.info = "性别不能为空";
+                    return;
+                } else {
+                    this.info="";
+                }
+
+                // 配置是否是正确的邮箱
+                var emailMatch = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+                console.log("this.customerEmail="+this.customer.customerEmail)
+                if (!(emailMatch.test(this.customer.customerEmail))){
+                    this.info="邮箱格式不正确";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配学历
+                if(this.customer.customerEducation==""){
+                    this.info = "学历不能为空";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配正确的身份证号
+                var idNumber = /^\d{15}|\d{18}$/;
+                if (!(idNumber.test(this.customer.customerIdnumber))){
+                    this.info = "身份证格式不正确";
+                    return ;
+                } else {
+                    this.info="";
+                }
+
+                // 匹配url 是修改还是新增
+                var url="";
+                if (this.title=="修改"){
+                    url="/customer/update";
+                }
+                var self = this;
+                // console.log(url);
+                $.ajax({
+                    url:url,
+                    type:"post",
+                    contentType:"application/x-www-form-urlencoded",
+                    data:self.customer,
+                    dataType:"json",
+                    success:function (data) {
+                        // console.log(data);
+                        alert(data.info);
+                        if(data.info=="保存成功"){
+                            //关闭模态框
+                            $("#two").modal("hide");
+                            // 重置提示信息
+                            self.info = "";
+                            //刷新
+                            self.loadData();
+                        }
+                    }
+
+
+                })
+            }
+            ,
+
+
+
+
+            closeWin: function() {//关闭模态框
+                $("#one").modal("hide");
+                $("#customerDetail").modal("hide");
+                this.loadData;
+            },
+            detail:function (x) {
+                // 显示客户详细信息
+                //数据回显
+                this.customer = x;
+                this.customerBirthday = x.customerBirthday;
+                this.title="详情";
+                $("#customerDetail").modal("show");
+            }
+
+
+        },
+        mounted(){
+            //运行loadData函数
+            this.loadData();
+        }
+    });
+
+
+
+</script>
+</html>

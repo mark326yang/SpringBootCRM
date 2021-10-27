@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/datatables.min.css" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="/js/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/vue.js"></script>
+
+</head>
+<body style="background-color:whitesmoke">
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>权限管理</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="../../templates/index.html">系统管理</a>
+            </li>
+            <li>
+                <a>权限管理</a>
+            </li>
+            <li class="active">
+                <strong>权限管理</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+
+
+
+<a class="btn btn-warning btn-sm" th:href="@{/power/addPage}">新增</a>
+<span style="color: red" th:text="${info}"></span>
+
+
+
+
+<table class="table">
+    <th onclick="orderBys(this,1)">编号<span th:text="${idFuhao}"></span></th>
+    <th>权限名</th>
+    <th>权限参数</th>
+    <th>操作</th>
+    <tbody>
+    <tr th:each="x:${list.list}">
+        <td th:text="${x.powerId}"></td>
+        <td th:text="${x.powerName}"></td>
+        <td th:text="${x.powerParam}"></td>
+        <td>
+            <a class="btn btn-danger btn-sm" th:href="@{/power/updatePage(id=${x.powerId})}">修改</a>
+            <!--            <button class="btn btn-success btn-sm" type="button" onclick="updatePage(this)">修改</button>-->
+            <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="del(this)">删除</a>
+        </td>
+    </tr>
+    </tbody>
+
+
+</table>
+<div>
+    一共<span th:text="${list.total}"></span>条数据
+    一共<span th:text="${list.totalPage}"></span>页
+    当前第<span th:text="${list.curPage}"></span>页
+    <a class="btn btn-danger btn-sm" th:href="@{/power/powerList(page=${list.prePage})}">上一页</a>
+    <a class="btn btn-danger btn-sm" th:href="@{/power/powerList(page=${list.nextPage})}">下一页</a>
+    <a class="btn btn-danger btn-sm" th:href="@{/power/powerList(page=1)}">首页</a>
+    <a class="btn btn-danger btn-sm" th:href="@{/power/powerList(page=${list.totalPage})}">尾页</a>
+
+</div>
+
+<center>
+    <div id="cx" style="width: 600px" >
+        <form action="/power/powerList">
+            编号<input type="text" name="powerId" class="form-control">    权限名<input type="text" name="powerName" class="form-control">
+            <button class="btn btn-success btn-sm" type="submit">查询</button>
+        </form>
+    </div>
+</center>
+
+
+
+
+
+
+</body>
+
+<script>
+    //删除
+    function del(obj) {
+        //获取选择行的id
+        var id = $(obj).parent().parent().find("td").eq(0).text();
+        var is = confirm("你确定要删除吗？")
+        if(is){
+            window.location.href="/power/del?id="+id;
+        }
+    }
+</script>
+
+
+
+
+</html>

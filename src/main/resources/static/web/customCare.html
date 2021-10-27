@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/datatables.min.css" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="/js/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/vue.js"></script>
+</head>
+<body style="background-color:whitesmoke">
+<div id="customer">
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>客户关怀</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="index.html">客户关怀</a>
+                </li>
+                <!--            <li>-->
+                <!--                <a>用户管理</a>-->
+                <!--            </li>-->
+                <li class="active">
+                    <strong>客户</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+        <div class="ibox-content m-b-sm border-bottom">
+            <div class="row">
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+
+                        <label class=" col-sm-2 control-label">编号</label>
+                        <div class=" col-sm-2">
+                            <input type="text" class="form-control" v-model="customerQuery.customerId" placeholder="请输入编号">
+                        </div>
+
+                        <label class=" col-sm-2 control-label">客户名</label>
+                        <div class=" col-sm-2">
+                            <input type="text" class="form-control" v-model="customerQuery.customerName" placeholder="请输入客户名">
+                        </div>
+
+                        <div>
+                            <button class="btn btn-primary btn-sm" type="button"  @click="loadData()"><span class="glyphicon glyphicon-zoom-in" ></span> 查询</button>
+                            <button class="btn btn-primary btn-sm" type="button" @click="add()"><span class="glyphicon glyphicon-plus"></span> 新增</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="ibox float-e-margins">
+
+                    <div class="ibox-content">
+
+                        <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="15">
+                            <thead>
+                            <tr>
+
+                                <th data-toggle="true">编号</th>
+                                <th data-hide="phone">客户姓名</th>
+                                <th data-hide="all">联系性别</th>
+                                <th data-hide="phone">邮箱地址</th>
+                                <th data-hide="phone">客户生日</th>
+
+                                <th class="text-right" data-sort-ignore="true">操作</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="x in list">
+                                <td>{{x.customerId}}</td>
+                                <td>{{x.customerName}}</td>
+                                <td>{{x.customerSex}}</td>
+                                <td>{{x.customerEmail}}</td>
+                                <td>{{x.customerBirthday}}</td>
+                                <td class="text-right">
+                           <!--         <button class="btn-success btn btn-sm" @click="detail(x)"><span class="glyphicon glyphicon-tag"></span>详细信息</button>
+                                    <button class="btn-primary btn btn-sm" @click="update(x)"><span class="glyphicon glyphicon-tag"></span> 编辑</button>-->
+                                    <button class="btn-primary btn btn-sm" type="button"  @click="send(x)"><span class="glyphicon glyphicon-tag"></span> 发送生日邮件</button>                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="display: inline-block;">
+                            一共{{total}}条数据,一共{{totalPage}}页,当前第{{curPage}}页
+                            <button class="btn btn-success btn-sm" type="button" @click="prePages()">上一页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="nextPages()">下一页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="indexPage()">首页</button>
+                            <button class="btn btn-success btn-sm" type="button" @click="endPage()">尾页</button>
+                            跳转到<input type="number" id="num" style="width: 40px" min="1" max="10" v-model="selectPage" @keyup="valNum">页
+                            <button class="btn btn-success btn-sm" type="button" @click="changePage()">跳转</button>
+                            <select v-model="customerQuery.row" @change="selectRow" >
+                                <option value="3">每页3条</option>
+                                <option value="5">每页5条</option>
+                                <option value="10">每页10条</option>
+                            </select>
+                        </div>
+                        <div style="display: inline-block;">
+                            <form action="/excelCustomer">
+                                <button class="btn btn-success" type="submit">Excel导出</button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+</div>
+</body>
+
+<script>
+
+    new Vue({
+        el:"#customer",
+        data:{
+            list:[],
+            total:0,//总条数
+            totalPage:0,//总页数
+            selectPage:1,//选择页数
+            customerQuery:{ //查询对象
+                page:1,
+                row:5,
+                customerId:null,
+                customerName:""
+            },
+            prePage:0,//上一页
+            nextPage:0,//下一页
+            curPage:0,//当前页
+            customer:{
+                customerId:0,
+                customerName:"",
+                customerSex:"",
+                customerBirthday:"",
+                customerPhone:"",
+                customerEmail:"",
+                customerEducation:"",
+                customerIdnumber:"",
+                customerUnit:"",
+                customerLinkman:"",
+                comments:"",
+                managerId:0
+            },
+            title:"客户列表",
+            info:"",
+            customerAdd:{
+                customerId:0,
+                customerName:"",
+                customerSex:"",
+                customerBirthday:"",
+                customerPhone:"",
+                customerEmail:"",
+                customerEducation:"",
+                customerIdnumber:"",
+                customerUnit:"",
+                customerLinkman:"",
+                comments:"",
+                managerId:0
+
+            }
+
+
+
+        },
+        methods:{
+            loadData:function () {
+                var self = this;
+                //self.customerQuery.customerBirthday = new Date();
+                $.ajax({
+                    url:"/customer/birthday",//请求地址
+                    type:"get",
+                    data:self.customerQuery,
+                    dataType:"json",//返回的数据类型
+                    success:function (data) {
+                        // console.log(data);
+                        self.list = data.list;
+                        self.total = data.total;
+                        self.totalPage = data.totalPage;
+                        self.prePage = data.prePage;
+                        self.nextPage = data.nextPage;
+                        self.curPage = data.curPage;
+
+
+                    }
+
+                })
+            },
+            prePages:function () {//上一页
+                this.customerQuery.page = this.prePage;
+                //刷新
+                this.loadData();
+
+            },
+            nextPages:function () {
+                this.customerQuery.page = this.nextPage;
+                //刷新
+                this.loadData();
+
+            },
+            indexPage:function () {//首页
+                this.customerQuery.page = 1;
+                //刷新
+                this.loadData();
+
+            },
+            endPage:function () {//尾页
+                this.customerQuery.page = this.totalPage;
+                //刷新
+                this.loadData();
+
+            },
+            changePage:function () {//跳转
+                if(this.selectPage>this.totalPage){
+                    this.customerQuery.page = this.totalPage;
+                }else{
+                    this.customerQuery.page = this.selectPage;
+                }
+                //刷新
+                this.loadData();
+
+            },
+            selectRow:function () {//选择条数
+                this.customerQuery.page=1;
+                //刷新
+                this.loadData();
+
+            },
+            valNum:function () {
+                //定义正则表达式对象
+                var dd =/^[\u4e00-\u9fa5]{0,}$/;
+                //如果输入的汉字，就显示1
+                if(dd.test(this.selectPage)) {
+                    this.selectPage=1;
+                }else{
+                    console.log("=="+this.selectPage);
+                    //如果输入的值大于总页数，就回到最大值
+                    if(this.selectPage>this.totalPage){
+                        this.selectPage = this.totalPage;
+                    }
+                }
+
+
+            },
+            update:function(x) {//打开修改模态框
+                $("#two").modal("show");
+                //数据回显
+                this.customer = x;
+                console.log(this.customer);
+
+                this.title="修改";
+
+            },
+            add :function () {//打开新增模态框
+                $("#one").modal("show");
+                this.title="新增";
+                //清空
+                /* this.customer.customerId=null;
+                 this.customer.customerName="";
+                 this.customer.customerSex="";
+                 this.customer.customerBirthday="";
+                 this.customer.customerPhone="";
+                 this.customer.customerEmail="";
+                 this.customer.customerEducation="";
+                 this.customer.customerIdnumber="";
+                 this.customer.customerUnit="";
+                 this.customer.customerLinkman="";
+                 this.customer.comments="";
+                 this.customer.managerId="";*/
+
+            },
+            send: function(x){
+                var is = window.confirm("确定发送吗?");
+                // console.log(is);
+                if (is){
+                    var self = this;
+                    // window.location.href="/customer/del/"+x.customerId;
+                    $.ajax({
+                        url:"/customer/send",
+                        type:"post",
+                        contentType:"application/x-www-form-urlencoded",
+                        dataType:"json",
+                        data:{
+                            "customerEmail":x.customerEmail
+                        },
+                        success:function (data) {
+                            // console.log(data.info);
+                            if(data.info=="发送成功"){
+                                //刷新页面
+                                self.loadData();
+                            }
+                        }
+
+                    });
+                }
+            },
+
+
+
+
+
+
+
+            closeWin: function() {//关闭模态框
+                $("#one").modal("hide");
+                $("#customerDetail").modal("hide");
+                this.loadData;
+            },
+            detail:function (x) {
+                // 显示客户详细信息
+                //数据回显
+                this.customer = x;
+                this.customerBirthday = x.customerBirthday;
+                this.title="详情";
+                $("#customerDetail").modal("show");
+            }
+
+
+        },
+        mounted(){
+            //运行loadData函数
+            this.loadData();
+        }
+    });
+
+
+
+</script>
+</html>

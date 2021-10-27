@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqyj.dao.AdminMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hqyj.pojo.Admin">
+        <id column="sys_id" property="sysId" />
+        <result column="sys_name" property="sysName" />
+        <result column="sys_pwd" property="sysPwd" />
+        <result column="salt" property="salt" />
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        sys_id, sys_name, sys_pwd,salt
+    </sql>
+
+    <resultMap id="more" type="com.hqyj.pojo.Admin">
+        <id column="sys_id" property="sysId" jdbcType="VARCHAR"></id>
+        <result column="sys_name" property="sysName" jdbcType="VARCHAR"></result>
+        <!--一对多-->
+        <collection property="roleList" ofType="com.hqyj.pojo.Role">
+            <id column="role_id" property="roleId" />
+            <result column="role_name" property="roleName" />
+            <result column="role_param" property="roleParam" />
+        </collection>
+    </resultMap>
+    <!--多对多查询-->
+    <select id="selectByUserName" resultMap="more" parameterType="java.lang.String">
+
+        SELECT a.sys_id,a.sys_name,r.role_name,r.role_param from admin a INNER JOIN
+            admin_role ar on a.sys_id = ar.admin_id
+            INNER JOIN role r on r.role_id = ar.role_id
+            WHERE sys_name =#{sysName}
+    </select>
+    <select id="selectPowerByName" resultType="java.lang.String">
+        SELECT p.power_param from admin a
+INNER JOIN admin_role ar on a.sys_id = ar.admin_id
+INNER JOIN role r on r.role_id = ar.role_id
+INNER JOIN role_power rp on r.role_id = rp.role_id
+INNER JOIN power p on p.power_id = rp.power_id
+WHERE a.sys_name=#{sysName}
+    </select>
+
+</mapper>

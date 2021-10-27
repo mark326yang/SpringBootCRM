@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqyj.dao.CustomerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hqyj.pojo.Customer">
+        <id column="customer_id" property="customerId" />
+        <result column="customer_name" property="customerName" />
+        <result column="customer_sex" property="customerSex" />
+        <result column="customer_birthday" property="customerBirthday" />
+        <result column="customer_phone" property="customerPhone" />
+        <result column="customer_email" property="customerEmail" />
+        <result column="customer_education" property="customerEducation" />
+        <result column="customer_idnumber" property="customerIdnumber" />
+        <result column="comments" property="comments" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        customer_id, customer_name, customer_sex, customer_birthday, customer_phone, customer_email, customer_education, customer_idnumber, comments
+    </sql>
+    <select id="selectCustomerNameByManager" resultType="com.hqyj.pojo.Manager">
+        SELECT
+ customer.customer_name,
+ manager.manager_id
+FROM
+admin
+INNER JOIN manager ON admin.manager_id = manager.manager_id
+INNER JOIN customer ON manager.manager_id = customer.manager_id
+where
+  admin.manager_id = #{managerId}
+    </select>
+    <!--<select id="selectCustomerByCustomerBirthday" resultType="com.hqyj.pojo.Customer">
+        select customer_name,customer_birthday from customer where customer_birthday=?;
+    </select>-->
+
+</mapper>

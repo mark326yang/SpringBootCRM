@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<form action="/role/add" method="post">
+
+    <label>角色名</label>
+    <input type="text" class="form-control" name="roleName" >
+    <label>参数</label>
+    <input type="text" class="form-control" name="roleParam" >
+
+
+    <span style="color: red" th:text="${info}"></span>
+    <button type="submit" class="btn btn-success btn-sm">新增</button>
+
+</form>
+</body>
+</html>
